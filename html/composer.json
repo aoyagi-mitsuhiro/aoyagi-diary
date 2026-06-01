@@ -1,0 +1,16 @@
+{
+    "name": "aoyagi/aoyagi-diary",
+    "description": "aoyagi-diary composer",
+    "autoload": {
+        "psr-4": {
+            "Aoyagi\\AoyagiDiary\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "aoyagi"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
