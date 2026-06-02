@@ -38,12 +38,12 @@
 
     <div style="display: flex ; justify-content: flex-end; padding-inline: 10px;">
         <div style="display: flex; justify-content: flex-end; padding-inline: 10px;">
-            <a href="?action=form" class="btn"
+            <a href="/diaries/form" class="btn"
                 style="background: green; color: white; padding: 10px 20px; border: none; cursor: pointer; text-decoration: none;">back</a>
         </div>
 
         <div style="display: flex; justify-content: flex-end; padding-inline: 10px;">
-            <a href="?action=insert" class="btn"
+            <a href="/diaries/insert" class="btn"
                 style="background: green; color: white; padding: 10px 20px; border: none; cursor: pointer; text-decoration: none;">submit</a>
         </div>
     </div>

@@ -1,4 +1,4 @@
-<form method="POST" action="?action=confirm">
+<form method="POST" action="/diaries/confirm">
     <div class="container" style="padding: 20px;">
         <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
             <h2>📚 form page</h2>

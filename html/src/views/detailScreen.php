@@ -1,7 +1,7 @@
 <?php
 
 /** @var array $diary */ ?>
-<form action="?action=update&id=<?= $diary['id'] ?>" method="post">
+<form action="/diaries/<?= $diary['id'] ?>/update" method="post">
     <div class="container" style="padding: 20px;">
         <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
             <h2>📚 detail page</h2>
@@ -44,12 +44,12 @@
 
             </div>
             <div style="display: flex; justify-content: flex-end; padding-inline: 10px;">
-                <a href="?action=delete&id=<?= $diary['id'] ?>" class="btn" onclick="return confirm('Are you sure you want to delete this diary entry?');"
+                <a href="/diaries/<?= $diary['id'] ?>/delete" class="btn" onclick="return confirm('Are you sure you want to delete this diary entry?');"
                     style="background: green; color: white; padding: 10px 20px; border: none; cursor: pointer; text-decoration: none;">delete</a>
 
             </div>
             <div style="display: flex; justify-content: flex-end; padding-inline: 10px;">
-                <a href="?action=home" class="btn"
+                <a href="/diaries" class="btn"
                     style="background: green; color: white; padding: 10px 20px; border: none; cursor: pointer; text-decoration: none;">back</a>
 
             </div>

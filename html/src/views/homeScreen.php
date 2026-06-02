@@ -5,14 +5,14 @@
 
     <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
         <h2>📚 Home</h2>
-        <a href="?action=form" class="btn"
+        <a href="/diaries/form" class="btn"
             style="height: 10px; width: 10px; background: green; color: white; padding: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center;">+</a>
     </div>
 
     <ul style="list-style: none; padding: 0;">
         <?php foreach ($diaries as $diary): ?>
             <li style="border-bottom: 1px solid #ddd; padding: 10px 0;">
-                <a href="?action=detail&id=<?= $diary['id'] ?>" style="text-decoration: none; color: black; font-weight: bold;">
+                <a href="/diaries/<?= $diary['id'] ?>" style="text-decoration: none; color: black; font-weight: bold;">
                     <?= $diary['title'] ?>
                 </a>
                 <span style="color: #888; float: right;"><?= $diary['date'] ?></span>

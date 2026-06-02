@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y unzip
 COPY docker/php/aoyagi.conf /etc/apache2/sites-available/aoyagi.conf
 RUN a2ensite aoyagi.conf
 RUN a2dissite 000-default.conf
+RUN a2enmod rewrite
 
 WORKDIR /var/www/html
 COPY html/composer.* ./

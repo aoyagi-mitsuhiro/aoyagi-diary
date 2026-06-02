@@ -26,10 +26,8 @@ class Controller
         include __DIR__ . '/views/formScreen.php';
     }
 
-    public function showDetail(): void
+    public function showDetail(int $id): void
     {
-        $id = $_GET['id'] ?? null;
-        $id = (int)$id;
         $diary = $this->model->getDiaryById($id);
 
         if (!$diary) {
@@ -69,9 +67,8 @@ class Controller
     }
 
 
-    public function updateDiary(): void
+    public function updateDiary(int $id): void
     {
-        $id = (int)($_GET['id'] ?? 0);
         $title = $_POST['title'] ?? '';
         $date = $_POST['date'] ?? '';
         $contents = $_POST['contents'] ?? '';
@@ -81,10 +78,8 @@ class Controller
         exit;
     }
 
-    public function deleteDiary(): void
+    public function deleteDiary(int $id): void
     {
-        $id = (int)($_GET['id'] ?? 0);
-
         $this->model->deleteDiary($id);
         header('Location: ?action=home');
         exit;
