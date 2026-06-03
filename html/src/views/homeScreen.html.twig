@@ -1,19 +1,19 @@
+{% extends "base.html.twig" %}
+{% block title %} Diary Home {% endblock %}
+
+{% block body %}
 <div class="container" style="padding: 20px;">
 
     <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-        <h2>📚 Home</h2>
+        <h2>📚 Home page</h2>
         <a href="/diaries/form" class="btn"
             style="height: 10px; width: 10px; background: green; color: white; padding: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center;">+</a>
     </div>
 
     <ul style="list-style: none; padding: 0;">
         {% for diary in diaries%}
-        <li style="border-bottom: 1px solid #ddd; padding: 10px 0;">
-            <a href="/diaries/{{ diary.id }}" style="text-decoration: none; color: black; font-weight: bold;">
-                {{ diary.title }}
-            </a>
-            <span style="color: #888; float: right;">{{ diary.date }}</span>
-        </li>
+            {{ include('diary_box.html.twig') }}
         {% endfor %}
     </ul>
 </div>
+{% endblock %}

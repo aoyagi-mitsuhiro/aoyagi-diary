@@ -1,7 +1,11 @@
+{% extends "base.html.twig" %}
+{% block title %} Diary Detail {% endblock %}
+
+{% block body %}
 <form action="/diaries/{{ diary.id }}/update" method="post">
     <div class="container" style="padding: 20px;">
         <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-            <h2>📚 detail page</h2>
+            <h2>📚 Detail page</h2>
         </div>
 
         <div style="margin-bottom: 20px; display: flex; flex-direction: column; justify-content: start; padding-inline: 10px;">
@@ -53,3 +57,4 @@
         </div>
     </div>
 </form>
+{% endblock %}

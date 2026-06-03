@@ -1,7 +1,11 @@
+{% extends "base.html.twig" %}
+{% block title %} Diary Form {% endblock %}
+
+{% block body %}
 <form method="POST" action="/diaries/confirm">
     <div class="container" style="padding: 20px;">
         <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-            <h2>📚 form page</h2>
+            <h2>📚 Form page</h2>
         </div>
 
         <div style="margin-bottom: 20px; display: flex; flex-direction: column; justify-content: start; padding-inline: 10px;">
@@ -38,3 +42,4 @@
         </div>
     </div>
 </form>
+{% endblock %}
