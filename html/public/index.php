@@ -2,6 +2,9 @@
 session_start();
 require_once __DIR__ . '/../vendor/autoload.php';
 
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
+
 use Aoyagi\AoyagiDiary\Controller;
 
 $uri = trim($_SERVER['REQUEST_URI'], '/');

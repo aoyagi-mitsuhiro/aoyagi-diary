@@ -78,7 +78,7 @@ class Controller
         }
 
         unset($_SESSION['tmp_title'], $_SESSION['tmp_date'], $_SESSION['tmp_contents']);
-        header('Location: ?action=home');
+        header('Location: /diaries');
         exit;
     }
 
@@ -90,14 +90,14 @@ class Controller
         $contents = $_POST['contents'] ?? '';
 
         $this->model->updateDiary($id, $title, $date, $contents);
-        header('Location: ?action=home');
+        header('Location: /diaries');
         exit;
     }
 
     public function deleteDiary(int $id): void
     {
         $this->model->deleteDiary($id);
-        header('Location: ?action=home');
+        header('Location: /diaries');
         exit;
     }
 }

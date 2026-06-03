@@ -11,8 +11,13 @@ class Model
     private PDO $pdo;
     public function __construct()
     {
-        $dsn = 'mysql:host=aoyagi-diary-db;dbname=diary_mysql_db;charset=utf8mb4';
-        $this->pdo = new PDO($dsn, 'root', '12345');
+        $host = $_ENV['DB_HOST'];
+        $dbname = $_ENV['DB_DATABASE'];
+        $username = $_ENV['DB_USERNAME'];
+        $password = $_ENV['DB_PASSWORD'];
+
+        $dsn = "mysql:host={$host};dbname={$dbname};charset=utf8mb4";
+        $this->pdo = new PDO($dsn, $username, $password);
 
         $this->createTable();
     }
