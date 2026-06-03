@@ -2,19 +2,27 @@
 
 namespace Aoyagi\AoyagiDiary;
 
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
+
 class Controller
 {
     private Model $model;
+    private FilesystemLoader $loader;
+    private Environment $twig;
 
     public function __construct()
     {
         $this->model = new Model();
+        $this->loader = new FilesystemLoader(__DIR__ . '/views');
+        $this->twig = new Environment($this->loader);
     }
 
     public function showHome(): void
     {
         $diaries = $this->model->getDiaries();
-        include __DIR__ . '/views/homeScreen.php';
+
+        echo $this->twig->render('homeScreen.html.twig', ['diaries' => $diaries]);
     }
 
     public function showForm(): void
@@ -23,7 +31,11 @@ class Controller
         $date = $_SESSION['tmp_date'] ?? '';
         $contents = $_SESSION['tmp_contents'] ?? '';
 
-        include __DIR__ . '/views/formScreen.php';
+        echo $this->twig->render('formScreen.html.twig', [
+            'title' => $title,
+            'date' => $date,
+            'contents' => $contents,
+        ]);
     }
 
     public function showDetail(int $id): void
@@ -35,7 +47,7 @@ class Controller
             exit;
         }
 
-        include __DIR__ . '/views/detailScreen.php';
+        echo $this->twig->render('detailScreen.html.twig', ['diary' => $diary]);
     }
 
     public function showConfirm(): void
@@ -48,7 +60,11 @@ class Controller
         $date = $_SESSION['tmp_date'] ?? '';
         $contents = $_SESSION['tmp_contents'] ?? '';
 
-        include __DIR__ . '/views/confirmScreen.php';
+        echo $this->twig->render('confirmScreen.html.twig', [
+            'title' => $title,
+            'date' => $date,
+            'contents' => $contents,
+        ]);
     }
 
     public function insertDiary(): void

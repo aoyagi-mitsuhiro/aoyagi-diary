@@ -19,7 +19,7 @@ if ($parts[0] === 'diaries') {
         $controller->showForm();
     } else if ($secondPart === 'confirm') {
         $controller->showConfirm();
-    } else if ($secondPart === 'insert') {
+    } else if ($secondPart === 'new') {
         $controller->insertDiary();
     } else if (is_numeric($secondPart)) {
         $id = (int)$secondPart;

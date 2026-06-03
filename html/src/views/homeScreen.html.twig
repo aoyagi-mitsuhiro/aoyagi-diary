@@ -1,6 +1,3 @@
-<?php
-
-/** @var array $diaries */ ?>
 <div class="container" style="padding: 20px;">
 
     <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
@@ -10,13 +7,13 @@
     </div>
 
     <ul style="list-style: none; padding: 0;">
-        <?php foreach ($diaries as $diary): ?>
-            <li style="border-bottom: 1px solid #ddd; padding: 10px 0;">
-                <a href="/diaries/<?= $diary['id'] ?>" style="text-decoration: none; color: black; font-weight: bold;">
-                    <?= $diary['title'] ?>
-                </a>
-                <span style="color: #888; float: right;"><?= $diary['date'] ?></span>
-            </li>
-        <?php endforeach; ?>
+        {% for diary in diaries%}
+        <li style="border-bottom: 1px solid #ddd; padding: 10px 0;">
+            <a href="/diaries/{{ diary.id }}" style="text-decoration: none; color: black; font-weight: bold;">
+                {{ diary.title }}
+            </a>
+            <span style="color: #888; float: right;">{{ diary.date }}</span>
+        </li>
+        {% endfor %}
     </ul>
 </div>
