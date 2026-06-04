@@ -22,26 +22,30 @@ class Model
         $this->createTable();
     }
 
-    public function getDiaries()
+    public function getDiaries(): array
     {
-        $sql = "SELECT id, title, date, contents FROM diaries ORDER BY date DESC";
-        $stmt = $this->pdo->query($sql);
-        $this->diaries = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $this->diaries;
+        try {
+            $sql = "SELECT id, title, date, contents FROM diaries ORDER BY date DESC";
+            $stmt = $this->pdo->query($sql);
+            $this->diaries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $this->diaries;
+        } catch (PDOException $e) {
+            error_log('Database error: ' . $e->getMessage());
+            return [];
+        }
     }
 
-    public function getDiaryById(int $id)
+    public function getDiaryById(int $id): ?array
     {
         try {
             $sql = "SELECT id, title, date, contents FROM diaries WHERE id = :id";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([':id' => $id]);
             $diary = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $diary;
+            return $diary ?: null;
         } catch (PDOException $e) {
-            // Handle the error, e.g., log it or display an error message
             error_log('Database error: ' . $e->getMessage());
-            exit;
+            return null;
         }
     }
 
@@ -57,21 +61,25 @@ class Model
 
             return $result;
         } catch (PDOException $e) {
-            // Handle the error, e.g., log it or display an error message
             error_log('Database error: ' . $e->getMessage());
-            exit;
+            return false;
         }
     }
 
     public function createTable(): void
     {
-        $tableSql = "CREATE TABLE IF NOT EXISTS diaries (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(255) NOT NULL,
-            date DATE NOT NULL,
-            contents TEXT NOT NULL
-        )";
-        $this->pdo->query($tableSql);
+        try {
+            $tableSql = "CREATE TABLE IF NOT EXISTS diaries (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                date DATE NOT NULL,
+                contents TEXT NOT NULL
+            )";
+            $this->pdo->query($tableSql);
+        } catch (PDOException $e) {
+            error_log('Database error: ' . $e->getMessage());
+            return;
+        }
     }
 
     public function updateDiary(int $id, string $title, string $date, string $contents): bool
