@@ -35,6 +35,7 @@ class Controller
             'title' => $title,
             'date' => $date,
             'contents' => $contents,
+            'csrf_token_value' => $_SESSION['csrf_token']
         ]);
     }
 
@@ -43,11 +44,14 @@ class Controller
         $diary = $this->model->getDiaryById($id);
 
         if (!$diary) {
-            header('Location: ?action=home');
+            header('Location: /diaries');
             exit;
         }
 
-        echo $this->twig->render('detailScreen.html.twig', ['diary' => $diary]);
+        echo $this->twig->render('detailScreen.html.twig', [
+            'diary' => $diary,
+            'csrf_token_value' => $_SESSION['csrf_token']
+        ]);
     }
 
     public function showConfirm(): void
@@ -64,6 +68,7 @@ class Controller
             'title' => $title,
             'date' => $date,
             'contents' => $contents,
+            'csrf_token_value' => $_SESSION['csrf_token']
         ]);
     }
 

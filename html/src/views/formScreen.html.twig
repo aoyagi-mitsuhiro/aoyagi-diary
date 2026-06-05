@@ -3,42 +3,42 @@
 
 {% block body %}
 <form method="POST" action="/diaries/confirm">
-    <div class="container" style="padding: 20px;">
-        <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+    <input type="hidden" name="_token" value="{{ csrf_token_value }}">
+    <div class="container">
+        <div class="header">
             <h2>📚 Form page</h2>
         </div>
 
-        <div style="margin-bottom: 20px; display: flex; flex-direction: column; justify-content: start; padding-inline: 10px;">
-            <div style="margin-right: 20px;">
+        <div class="diary-form-group">
+            <div class="diary-form-label">
                 <h3>title</h3>
             </div>
             <div>
-                <input type='text' name='title' style="width: 100%; height: 40px;" value="{{ title }}" required />
+                <input type='text' name='title' id='title' value="{{ title }}" required />
             </div>
         </div>
 
 
-        <div style="margin-bottom: 20px; display: flex; flex-direction: column; justify-content: start; padding-inline: 10px;">
-            <div style="margin-right: 20px;">
+        <div class="diary-form-group">
+            <div class="diary-form-label">
                 <h3>date</h3>
             </div>
             <div>
-                <input type='date' name='date' style="width: 200px;" value="{{ date }}" required />
+                <input type='date' name='date' id='date' value="{{ date }}" required />
             </div>
         </div>
 
-        <div style="margin-bottom: 20px; display: flex; flex-direction: column; justify-content: start; padding-inline: 10px;  ">
-            <div style="margin-right: 20px;">
+        <div class="diary-form-group">
+            <div class="diary-form-label">
                 <h3>contents</h3>
             </div>
             <div>
-                <textarea name='contents' style="width: 100%; height: 100px; min-height: 100px; height: 350px;">{{ contents }}</textarea>
+                <textarea name='contents' id='contents'>{{ contents }}</textarea>
             </div>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; padding-inline: 10px;">
-            <button type="submit" class="btn"
-                style="background: green; color: white; padding: 10px 20px; border: none; cursor: pointer; text-decoration: none;">submit</button>
+        <div class="btn-container">
+            <button type="submit" class="btn">submit</button>
         </div>
     </div>
 </form>

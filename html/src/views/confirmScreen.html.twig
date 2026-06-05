@@ -2,49 +2,46 @@
 {% block title %} Diary Confirm {% endblock %}
 
 {% block body %}
-<div class="container" style="padding: 20px;">
-    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-        <h2>📚 Confirm page</h2>
-    </div>
+<form action="/diaries/new" method="post">
+    <input type="hidden" name="_token" value="{{ csrf_token_value }}">
 
-    <div style="margin-bottom: 20px; display: flex; flex-direction: column; justify-content: start; padding-inline: 10px;">
-        <div style="margin-right: 20px;">
-            <h3>title</h3>
-        </div>
-        <div>
-            <p>{{ title }}</p>
-        </div>
-    </div>
-
-
-    <div style="margin-bottom: 20px; display: flex; flex-direction: column; justify-content: start; padding-inline: 10px;">
-        <div style="margin-right: 20px;">
-            <h3>date</h3>
-        </div>
-        <div>
-            <p>{{ date|date("Y年 m月 d日") }}</p>
-        </div>
-    </div>
-
-    <div style="margin-bottom: 20px; display: flex; flex-direction: column; justify-content: start; padding-inline: 10px;  ">
-        <div style="margin-right: 20px;">
-            <h3>contents</h3>
-        </div>
-        <div>
-            <p>{{ contents|nl2br }}</p>
-        </div>
-    </div>
-
-    <div style="display: flex ; justify-content: flex-end; padding-inline: 10px;">
-        <div style="display: flex; justify-content: flex-end; padding-inline: 10px;">
-            <a href="/diaries/form" class="btn"
-                style="background: green; color: white; padding: 10px 20px; border: none; cursor: pointer; text-decoration: none;">back</a>
+    <div class="container" >
+        <div class="header" >
+            <h2>📚 Confirm page</h2>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; padding-inline: 10px;">
-            <a href="/diaries/new" class="btn"
-                style="background: green; color: white; padding: 10px 20px; border: none; cursor: pointer; text-decoration: none;">submit</a>
+        <div class="diary-form-group">
+            <div class="diary-form-label">
+                <h3>title</h3>
+            </div>
+            <div>
+                <p>{{ title }}</p>
+            </div>
+        </div>
+
+
+        <div class="diary-form-group">
+            <div class="diary-form-label">
+                <h3>date</h3>
+            </div>
+            <div>
+                <p>{{ date|date("Y年 m月 d日") }}</p>
+            </div>
+        </div>
+
+        <div class="diary-form-group">
+            <div class="diary-form-label">
+                <h3>contents</h3>
+            </div>
+            <div>
+                <p>{{ contents|nl2br }}</p>
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <a href="/diaries/form" class="btn">back</a>
+            <button type="submit" class="btn">submit</button>
         </div>
     </div>
-</div>
+</form>
 {% endblock %}

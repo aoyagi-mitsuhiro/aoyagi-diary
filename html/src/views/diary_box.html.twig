@@ -1,6 +1,6 @@
-<li style="border-bottom: 1px solid #ddd; padding: 10px 0;">
-    <a href="/diaries/{{ diary.id }}" style="text-decoration: none; color: black; font-weight: bold;">
+<li id="diary-box">
+    <a href="/diaries/{{ diary.id }}" id="diary-title">
         {{ diary.title }}
     </a>
-    <span style="color: #888; float: right;">{{ diary.date|date("Y年 m月 d日") }}</span>
+    <span id="diary-timestamp">{{ diary.date|date("Y年 m月 d日") }}</span>
 </li>
