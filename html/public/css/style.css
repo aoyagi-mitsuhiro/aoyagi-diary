@@ -68,17 +68,17 @@
     margin-inline: 10px;
 }
 
-#diary-title {
+.diary-title {
     text-decoration: none; 
     color: black; 
     font-weight: bold;
 }
 
-#diary-timestamp {
+.diary-timestamp {
     color: #888; float: right;
 }
 
-#diary-box {
+.diary-box {
     border-bottom: 1px solid #ddd; 
     padding: 10px 0;
 }

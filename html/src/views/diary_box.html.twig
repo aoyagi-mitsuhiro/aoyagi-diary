@@ -1,6 +1,6 @@
-<li id="diary-box">
-    <a href="/diaries/{{ diary.id }}" id="diary-title">
+<li class="diary-box">
+    <a href="/diaries/{{ diary.id }}" class="diary-title">
         {{ diary.title }}
     </a>
-    <span id="diary-timestamp">{{ diary.date|date("Y年 m月 d日") }}</span>
+    <span class="diary-timestamp">{{ diary.date|date("Y年 m月 d日") }}</span>
 </li>
