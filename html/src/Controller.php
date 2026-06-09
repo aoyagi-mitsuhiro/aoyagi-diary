@@ -10,11 +10,13 @@ class Controller
     private Model $model;
     private FilesystemLoader $loader;
     private Environment $twig;
+    private DiaryValidator $validator;
 
     public function __construct()
     {
         $this->model = new Model();
         $this->loader = new FilesystemLoader(__DIR__ . '/views');
+        $this->validator = new DiaryValidator();
         $this->twig = new Environment($this->loader);
     }
 
@@ -63,47 +65,15 @@ class Controller
         $date = $_SESSION['tmp_date'] ?? '';
         $contents = $_SESSION['tmp_contents'] ?? '';
 
-        $errorMessage = '';
-        $dateParts = explode('-', $date);
-        $inputDate = new \DateTime($date);
-        $today = new \DateTime();
+        $errorMessages = $this->validator->validate($title, $date, $contents);
 
-        if (count($dateParts) === 3) {
-            $year = (int)$dateParts[0];
-            $month = (int)$dateParts[1];
-            $day = (int)$dateParts[2];
-
-            if (!checkdate($month, $day, $year)) {
-                http_response_code(400);
-                $errorMessage = "Invalid date: {$date}";
-            }
-        } else {
-            http_response_code(400);
-            $errorMessage = 'Invalid date format';
-        }
-
-        if ($title === '' || $date === '' || $contents === '') {
-            http_response_code(400);
-            $errorMessage = 'All fields are required';
-        }
-
-        if (strlen($title) > 255) {
-            http_response_code(400);
-            $errorMessage = 'Title must be 255 characters or less';
-        }
-
-        if ($inputDate > $today) {
-            http_response_code(400);
-            $errorMessage = 'Date cannot be in the future';
-        }
-
-        if ($errorMessage !== '') {
+        if (!empty($errorMessages)) {
 
             echo $this->twig->render('formScreen.html.twig', [
                 'title' => $title,
                 'date' => $date,
                 'contents' => $contents,
-                'error_message' => $errorMessage,
+                'error_messages' => $errorMessages,
                 'csrf_token_value' => $_SESSION['csrf_token']
             ]);
             return;
@@ -140,45 +110,9 @@ class Controller
         $date = $_POST['date'] ?? '';
         $contents = $_POST['contents'] ?? '';
 
-        $errorMessage = '';
-        $inputDate = new \DateTime($date);
-        $today = new \DateTime();
-        $dateParts = explode('-', $date);
+        $errorMessages = $this->validator->validate($title, $date, $contents);
 
-        // 日付の形式と妥当性をチェック
-        if (count($dateParts) === 3) {
-            $year = (int)$dateParts[0];
-            $month = (int)$dateParts[1];
-            $day = (int)$dateParts[2];
-
-            if (!checkdate($month, $day, $year)) {
-                http_response_code(400);
-                $errorMessage = "Invalid date: {$date}";
-            }
-        } else {
-            http_response_code(400);
-            $errorMessage = 'Invalid date format';
-        }
-
-        // 必須項目のチェック
-        if ($title === '' || $date === '' || $contents === '') {
-            http_response_code(400);
-            $errorMessage = 'All fields are required';
-        }
-
-        // タイトルの長さのチェック
-        if (strlen($title) > 255) {
-            http_response_code(400);
-            $errorMessage = 'Title must be 255 characters or less';
-        }
-
-        // 日付が未来でないことのチェック
-        if ($inputDate > $today) {
-            http_response_code(400);
-            $errorMessage = 'Date cannot be in the future';
-        }
-
-        if ($errorMessage !== '') {
+        if (!empty($errorMessages)) {
             $diary = [
                 'id' => $id,
                 'title' => $title,
@@ -188,7 +122,7 @@ class Controller
 
             echo $this->twig->render('detailScreen.html.twig', [
                 'diary' => $diary,
-                'error_message' => $errorMessage,
+                'error_messages' => $errorMessages,
                 'csrf_token_value' => $_SESSION['csrf_token']
             ]);
             return;

@@ -25,7 +25,7 @@ class Model
     public function getDiaries(): array
     {
         try {
-            $sql = "SELECT id, title, date, contents FROM diaries ORDER BY date DESC";
+            $sql = "SELECT id, title, date, contents FROM diaries ORDER BY id DESC";
             $stmt = $this->pdo->query($sql);
             $this->diaries = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $this->diaries;

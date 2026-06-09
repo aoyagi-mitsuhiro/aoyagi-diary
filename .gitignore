@@ -1,2 +1,3 @@
 /html/vendor/
 /html/.env
+/html/.phpunit.cache/test-results
