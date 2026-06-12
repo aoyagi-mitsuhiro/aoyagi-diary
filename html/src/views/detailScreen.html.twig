@@ -2,7 +2,7 @@
 {% block title %} Diary Detail {% endblock %}
 
 {% block body %}
-<form action="/diaries/{{ diary.id }}/update" method="post">
+<form action="/diaries/{{ diary.id }}/update" method="POST">
     <input type="hidden" name="_method" value="PUT">
     <input type="hidden" name="_token" value="{{ csrf_token_value }}">
 
@@ -13,7 +13,7 @@
 
 
         {% if error_messages %}
-            <div style="background-color: #ffdde1; color: #d90429; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; border: 1px solid #d90429;">
+            <div id="error-text">
                 {% for error in error_messages %}
                     ⚠️ {{ error }}
                     {% if not loop.last %}<br>{% endif %}
@@ -56,7 +56,7 @@
         
     </div>
 </form>
-<form id="delete-form" action="/diaries/{{ diary.id }}/delete" method="post">
+<form id="delete-form" action="/diaries/{{ diary.id }}/delete" method="POST">
     <input type="hidden" name="_method" value="DELETE">
     <input type="hidden" name="_token" value="{{ csrf_token_value }}">
 </form>

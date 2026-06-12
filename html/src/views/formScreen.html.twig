@@ -10,7 +10,7 @@
         </div>
 
         {% if error_messages %}
-            <div style="background-color: #ffdde1; color: #d90429; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; border: 1px solid #d90429;">
+            <div id="error-text">
                     {% for error in error_messages %}
                         ⚠️ {{ error }}
                         {% if not loop.last %}<br>{% endif %}

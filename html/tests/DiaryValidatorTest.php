@@ -4,6 +4,7 @@ namespace Aoyagi\AoyagiDiary\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Aoyagi\AoyagiDiary\DiaryValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class DiaryValidatorTest extends TestCase
 {
@@ -20,85 +21,84 @@ class DiaryValidatorTest extends TestCase
         $this->assertEmpty($errors);
     }
 
-    public function test_validate_emptyFields(): void
+    public static function emptyFieldProvider(): array
     {
-        $errors = $this->validator->validate('', '', '');
-        $this->assertContains('All fields are required', $errors);
+        return [
+            'all fields empty' => ['', '', '', 'All fields are required'],
+            'title empty' => ['', '2024-01-01', 'Today was a good day.', 'All fields are required'],
+            'date empty' => ['My Diary', '', 'Today was a good day.', 'All fields are required'],
+            'contents empty' => ['My Diary', '2024-01-01', '', 'All fields are required'],
+            'title spaceFilled fields' => [str_repeat(' ', 10), '2024-01-01', 'Today was a good day.', 'All fields are required'],
+            'date spaceFilled fields' => ['My Diary', str_repeat(' ', 10), 'Today was a good day.', 'All fields are required'],
+            'contents spaceFilled fields' => ['My Diary', '2024-01-01', str_repeat(' ', 10), 'All fields are required'],
+        ];
     }
 
-    public function test_validate_invalidDate(): void
+    #[DataProvider('emptyFieldProvider')]
+    public function test_validate_emptyFields(string $title, string $date, string $contents, string $expectedError): void
     {
-        $errors = $this->validator->validate('My Diary', '2026-02-1100', 'Today was a good day.');
-        $this->assertContains('Invalid date: 2026-02-1100', $errors);
+        $errors = $this->validator->validate($title, $date, $contents);
+        $this->assertContains($expectedError, $errors);
     }
 
-    public function test_validate_nonExistentDate(): void
-    {
-        $errors = $this->validator->validate('My Diary', '2024-02-30', 'Today was a good day.');
-        $this->assertContains('Invalid date: 2024-02-30', $errors);
-    }
 
-    public function test_validate_futureDate(): void
+    public static function invalidDateProvider(): array
     {
         $tomorrow = (new \DateTime())->modify('+1 day')->format('Y-m-d');
-        $errors = $this->validator->validate('title', $tomorrow, 'content');
-        $this->assertContains('Date cannot be in the future', $errors);
+        return [
+            'invalid date format' => ['My Diary', '2026-02-1100', 'Today was a good day.', 'Invalid date: 2026-02-1100'],
+            'non-existent date' => ['My Diary', '2024-02-30', 'Today was a good day.', 'Invalid date: 2024-02-30'],
+            'invalid date' => ['My Diary', $tomorrow, 'Today was a good day.', 'Date cannot be in the future'],
+            'wrong separator' => ['My Diary', '2024/01/01', 'Today was a good day.', 'Invalid date format'],
+        ];
     }
 
-    public function test_validate_longTitle(): void
+    #[DataProvider('invalidDateProvider')]
+    public function test_validate_invalidDates(string $title, string $date, string $contents, string $expectedError): void
     {
-        $longTitle = str_repeat('a', 256);
-        $errors = $this->validator->validate($longTitle, '2024-01-01', 'Today was a good day.');
-        $this->assertContains('Title must be 255 characters or less', $errors);
+        $errors = $this->validator->validate($title, $date, $contents);
+        $this->assertContains($expectedError, $errors);
     }
 
-    public function test_validate_xssAttack(): void
+
+    public static function xssAndSqlInjectionProvider(): array
     {
-        $errors = $this->validator->validate('<script>alert("XSS")</script>', '2024-01-01', 'Today was a good day.');
-        $this->assertEmpty($errors);
+        return [
+            'xss attack' => ['<script>alert("XSS")</script>', '2024-01-01', 'Today was a good day.'],
+            'sql injection in title' => ['title; DROP TABLE diaries;', '2024-01-01', 'content'],
+            'sql injection in date' => ['title', '2024-01-01; DROP TABLE diaries;', 'content', 'Invalid date format'],
+            'sql injection in contents' => ['title', '2024-01-01', 'content; DROP TABLE diaries;'],
+        ];
     }
 
-    public function test_validate_sqlInjection(): void
+    #[DataProvider('xssAndSqlInjectionProvider')]
+    public function test_validate_xssAndSqlInjection(string $title, string $date, string $contents, ?string $expectedError = null): void
     {
-        $errors = $this->validator->validate('title', '2024-01-01', 'content; DROP TABLE diaries;');
-        $this->assertEmpty($errors);
+        $errors = $this->validator->validate($title, $date, $contents);
+        if ($expectedError) {
+            $this->assertContains($expectedError, $errors);
+        } else {
+            $this->assertEmpty($errors);
+        }
     }
 
-    public function test_validate_sqlInjectionInTitle(): void
+    public static function boundaryTitleProvider(): array
     {
-        $errors = $this->validator->validate('title; DROP TABLE diaries;', '2024-01-01', 'content');
-        $this->assertEmpty($errors);
+        return [
+            'exactly 255 characters' => [str_repeat('a', 255), '2024-01-01', 'Today was a good day.'],
+            'hiragana exactly 255 characters' => [str_repeat('あ', 255), '2024-01-01', 'Today was a good day.'],
+            '256 characters' => [str_repeat('a', 256), '2024-01-01', 'Today was a good day.', 'Title must be 255 characters or less'],
+        ];
     }
 
-    public function test_validate_sqlInjectionInDate(): void
+    #[DataProvider('boundaryTitleProvider')]
+    public function test_validate_boundaryTitle(string $title, string $date, string $contents, ?string $expectedError = null): void
     {
-        $errors = $this->validator->validate('title', '2024-01-01; DROP TABLE diaries;', 'content');
-        $this->assertContains('Invalid date format', $errors);
-    }
-
-    public function test_validate_spaceFilled(): void
-    {
-        $errors = $this->validator->validate(str_repeat(' ', 10), '2024-01-01', str_repeat(' ', 10));
-        $this->assertContains('All fields are required', $errors);
-    }
-
-    public function test_validate_exactly255CharactersTitle(): void
-    {
-        $title = str_repeat('a', 255);
-        $errors = $this->validator->validate($title, '2024-01-01', 'Today was a good day.');
-        $this->assertEmpty($errors);
-    }
-
-    public function test_validate_JapaneseCharacters(): void
-    {
-        $japaneseTitle = str_repeat('あ', 255);
-        $errors = $this->validator->validate($japaneseTitle, '2024-01-01', '今日は良い日でした。');
-        $this->assertEmpty($errors);
-    }
-
-    public function test_validate_dateWithWrongSeparator(): void
-    {
-        $errors = $this->validator->validate('My Diary', '2024/01/01', 'Today was a good day.');
-        $this->assertContains('Invalid date format', $errors);
+        $errors = $this->validator->validate($title, $date, $contents);
+        if ($expectedError) {
+            $this->assertContains($expectedError, $errors);
+        } else {
+            $this->assertEmpty($errors);
+        }
     }
 }

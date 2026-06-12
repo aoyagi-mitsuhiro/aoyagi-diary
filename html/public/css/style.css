@@ -86,3 +86,17 @@
 #delete-form {
     display: none;
 }
+
+#error-text {
+    background-color: #ffdde1;
+    color: #d90429;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    border: 1px solid #d90429;
+}
+
+#flex-btn {
+    display: flex;
+}

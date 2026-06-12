@@ -2,17 +2,22 @@
 {% block title %} Diary Home {% endblock %}
 
 {% block body %}
-<div class="container" >
+<form method="POST" action="/logout">
+    <input type="hidden" name="_token" value="{{ csrf_token_value }}">
+    <div class="container" >
+        <div class="header" >
+            <h2>📚 Home page</h2>
+            <div class= "flex-btn">
+                <button type="submit" class="btn">Logout</button>
+                <a href="/diaries/form" class="btn">+</a>
+            </div>
+        </div>
 
-    <div class="header" >
-        <h2>📚 Home page</h2>
-        <a href="/diaries/form" id="add-button">+</a>
+        <ul id="diary-list" >
+            {% for diary in diaries%}
+                {{ include('diary_box.html.twig') }}
+            {% endfor %}
+        </ul>
     </div>
-
-    <ul id="diary-list" >
-        {% for diary in diaries%}
-            {{ include('diary_box.html.twig') }}
-        {% endfor %}
-    </ul>
-</div>
+</form>
 {% endblock %}

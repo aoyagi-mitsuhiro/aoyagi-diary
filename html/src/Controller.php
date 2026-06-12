@@ -4,6 +4,7 @@ namespace Aoyagi\AoyagiDiary;
 
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use Aoyagi\AoyagiDiary\AuthController;
 
 class Controller
 {
@@ -11,6 +12,7 @@ class Controller
     private FilesystemLoader $loader;
     private Environment $twig;
     private DiaryValidator $validator;
+    private AuthController $auth;
 
     public function __construct()
     {
@@ -18,17 +20,23 @@ class Controller
         $this->loader = new FilesystemLoader(__DIR__ . '/views');
         $this->validator = new DiaryValidator();
         $this->twig = new Environment($this->loader);
+        $this->auth = new AuthController();
     }
 
     public function showHome(): void
     {
+        $this->auth->checkAuth();
         $diaries = $this->model->getDiaries();
 
-        echo $this->twig->render('homeScreen.html.twig', ['diaries' => $diaries]);
+        echo $this->twig->render('homeScreen.html.twig', [
+            'diaries' => $diaries,
+            'csrf_token_value' => $_SESSION['csrf_token']
+        ]);
     }
 
     public function showForm(): void
     {
+        $this->auth->checkAuth();
         $title = $_SESSION['tmp_title'] ?? '';
         $date = $_SESSION['tmp_date'] ?? '';
         $contents = $_SESSION['tmp_contents'] ?? '';
@@ -43,6 +51,7 @@ class Controller
 
     public function showDetail(int $id): void
     {
+        $this->auth->checkAuth();
         $diary = $this->model->getDiaryById($id);
         if (!$diary) {
             header('Location: /diaries');
@@ -57,6 +66,7 @@ class Controller
 
     public function showConfirm(): void
     {
+        $this->auth->checkAuth();
         $_SESSION['tmp_title'] = $_POST['title'] ?? '';
         $_SESSION['tmp_date'] = $_POST['date'] ?? '';
         $_SESSION['tmp_contents'] = $_POST['contents'] ?? '';

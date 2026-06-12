@@ -2,7 +2,7 @@
 {% block title %} Diary Confirm {% endblock %}
 
 {% block body %}
-<form action="/diaries/new" method="post">
+<form action="/diaries/new" method="POST">
     <input type="hidden" name="_token" value="{{ csrf_token_value }}">
 
     <div class="container" >
