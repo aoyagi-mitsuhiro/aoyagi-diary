@@ -1,5 +1,5 @@
 .container {
-    padding: 20px;
+    padding: 10px 200px;
 }
 
 .header {
@@ -47,9 +47,8 @@
 }
 #contents {
     width: 100%; 
-    height: 100px; 
     min-height: 100px; 
-    height: 350px;
+    height: 200px;
 }
 
 .btn-container {

@@ -1,13 +1,12 @@
 <?php
 
-namespace Aoyagi\AoyagiDiary;
+namespace Aoyagi\AoyagiDiary\model;
 
 use PDO;
 use PDOException;
 
-class Model
+class DiaryRepository
 {
-    private array $diaries = [];
     private PDO $pdo;
     public function __construct()
     {
@@ -17,18 +16,21 @@ class Model
         $password = $_ENV['DB_PASSWORD'];
 
         $dsn = "mysql:host={$host};dbname={$dbname};charset=utf8mb4";
-        $this->pdo = new PDO($dsn, $username, $password);
+        $this->pdo = new PDO($dsn, $username, $password, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]);
 
-        $this->createTable();
+        $this->createDiaryTable();
     }
 
-    public function getDiaries(): array
+    public function getDiaries(int $user_id): array
     {
         try {
-            $sql = "SELECT id, title, date, contents FROM diaries ORDER BY id DESC";
-            $stmt = $this->pdo->query($sql);
-            $this->diaries = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return $this->diaries;
+            $sql = "SELECT id, title, date, contents FROM diaries WHERE is_private = 0 OR user_id = :user_id ORDER BY id DESC";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':user_id' => $user_id]);
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log('Database error: ' . $e->getMessage());
             return [];
@@ -38,7 +40,7 @@ class Model
     public function getDiaryById(int $id): ?array
     {
         try {
-            $sql = "SELECT id, title, date, contents FROM diaries WHERE id = :id";
+            $sql = "SELECT id, title, date, contents, is_private, user_id FROM diaries WHERE id = :id";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([':id' => $id]);
             $diary = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -49,14 +51,17 @@ class Model
         }
     }
 
-    public function saveDiary(string $title, string $date, string $contents): bool
+    public function saveDiary(string $title, string $date, string $contents, bool $is_private, int $user_id): bool
     {
         try {
-            $stmt = $this->pdo->prepare("INSERT INTO diaries (title, date, contents) VALUES (:title, :date, :contents)");
+            $stmt = $this->pdo->prepare("INSERT INTO diaries (title, date, contents, is_private, user_id) 
+            VALUES (:title, :date, :contents, :is_private, :user_id)");
             $result = $stmt->execute([
                 ':title' => $title,
                 ':date' => $date,
                 ':contents' => $contents,
+                ':is_private' => (int)$is_private,
+                ':user_id' => (int)$user_id,
             ]);
 
             return $result;
@@ -66,24 +71,18 @@ class Model
         }
     }
 
-    public function createTable(): void
+    public function createDiaryTable(): void
     {
         try {
-            $tableSql = "CREATE TABLE IF NOT EXISTS diaries (
+            $diaryRableSql = "CREATE TABLE IF NOT EXISTS diaries (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 title VARCHAR(255) NOT NULL,
                 date DATE NOT NULL,
-                contents TEXT NOT NULL
+                contents TEXT NOT NULL,
+                is_private BOOLEAN NOT NULL DEFAULT FALSE,
+                user_id INT NOT NULL
             )";
-            $this->pdo->query($tableSql);
-
-            $userTableSql = "CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                username VARCHAR(50) NOT NULL UNIQUE,
-                password VARCHAR(255) NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )";
-            $this->pdo->query($userTableSql);
+            $this->pdo->query($diaryRableSql);
         } catch (PDOException $e) {
             error_log('Database error: ' . $e->getMessage());
             return;
@@ -119,25 +118,5 @@ class Model
             error_log('Database error: ' . $e->getMessage());
             return false;
         }
-    }
-
-    public function getUserByUsername(string $username): ?array
-    {
-        $sql = $this->pdo->prepare("SELECT * FROM users WHERE username = :username");
-        $sql->execute(['username' => $username]);
-        $user = $sql->fetch(\PDO::FETCH_ASSOC);
-        return $user ?: null;
-    }
-
-    public function signup(string $username, string $password): bool
-    {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $sql = $this->pdo->prepare("INSERT INTO users (username, password) VALUES (:username, :password)");
-        $result = $sql->execute([
-            'username' => $username,
-            'password' => $hashedPassword
-        ]);
-
-        return $result;
     }
 }

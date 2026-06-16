@@ -2,19 +2,18 @@
 session_start();
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Aoyagi\AoyagiDiary\Controller;
-use Aoyagi\AoyagiDiary\AuthController;
-
-
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->load();
-
-$controller = new Controller();
-$authController = new AuthController();
+use Aoyagi\AoyagiDiary\controller\DiaryController;
+use Aoyagi\AoyagiDiary\controller\AuthController;
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
+
+$diaryController = new DiaryController();
+$authController = new AuthController();
 
 $uri = trim($_SERVER['REQUEST_URI'], '/');
 $parts = explode('/', $uri);
@@ -51,6 +50,7 @@ if (!$isLoggedIn) {
         exit;
     }
 } else {
+    $authController->checkAuth();
 
     if ($parts[0] === 'logout') {
         $authController->logout();
@@ -62,14 +62,14 @@ if (!$isLoggedIn) {
         $thirdPart = $parts[2] ?? '';
 
         if ($secondPart === '') {
-            $controller->showHome();
+            $diaryController->showHome();
         } else if ($secondPart === 'form') {
-            $controller->showForm();
+            $diaryController->showForm();
         } else if ($secondPart === 'confirm') {
-            $controller->showConfirm();
+            $diaryController->showConfirm();
         } else if ($secondPart === 'new') {
             if ($method === 'POST') {
-                $controller->insertDiary();
+                $diaryController->insertDiary();
             } else {
                 http_response_code(405);
                 die('method not allowed');
@@ -78,17 +78,17 @@ if (!$isLoggedIn) {
             $id = (int)$secondPart;
 
             if ($thirdPart === '') {
-                $controller->showDetail($id);
+                $diaryController->showDetail($id);
             } else if ($thirdPart === 'update') {
                 if ($method === 'PUT') {
-                    $controller->updateDiary($id);
+                    $diaryController->updateDiary($id);
                 } else {
                     http_response_code(405);
                     die('method not allowed');
                 }
             } else if ($thirdPart === 'delete') {
                 if ($method === 'DELETE') {
-                    $controller->deleteDiary($id);
+                    $diaryController->deleteDiary($id);
                 } else {
                     http_response_code(405);
                     die('method not allowed');

@@ -1,6 +1,6 @@
 <?php
 
-namespace Aoyagi\AoyagiDiary;
+namespace Aoyagi\AoyagiDiary\validator;
 
 class DiaryValidator
 {
@@ -18,9 +18,8 @@ class DiaryValidator
             $errorMessages[] = 'Title must be 255 characters or less';
         }
 
-        $dateParts = explode('-', $date);
-
         // 日付の形式と妥当性をチェック            
+        $dateParts = explode('-', $date);
         if (count($dateParts) !== 3) {
             $errorMessages[] = 'Invalid date format';
             return $errorMessages;

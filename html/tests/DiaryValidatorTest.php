@@ -1,9 +1,9 @@
 <?php
 
-namespace Aoyagi\AoyagiDiary\Tests;
+namespace Aoyagi\AoyagiDiary\tests;
 
 use PHPUnit\Framework\TestCase;
-use Aoyagi\AoyagiDiary\DiaryValidator;
+use Aoyagi\AoyagiDiary\validator\DiaryValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class DiaryValidatorTest extends TestCase

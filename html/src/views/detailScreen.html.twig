@@ -5,6 +5,7 @@
 <form action="/diaries/{{ diary.id }}/update" method="POST">
     <input type="hidden" name="_method" value="PUT">
     <input type="hidden" name="_token" value="{{ csrf_token_value }}">
+    <input type="hidden" name="diary_owner_id" value="{{ diary_owner_id }}">
 
     <div class="container">
         <div class="header">
@@ -59,6 +60,7 @@
 <form id="delete-form" action="/diaries/{{ diary.id }}/delete" method="POST">
     <input type="hidden" name="_method" value="DELETE">
     <input type="hidden" name="_token" value="{{ csrf_token_value }}">
+    <input type="hidden" name="diary_owner_id" value="{{ diary_owner_id }}">
 </form>
  
 {% endblock %}

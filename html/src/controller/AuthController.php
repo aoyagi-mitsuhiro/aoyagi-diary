@@ -1,21 +1,26 @@
 <?php
 
-namespace Aoyagi\AoyagiDiary;
+namespace Aoyagi\AoyagiDiary\controller;
 
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use Aoyagi\AoyagiDiary\model\AuthRepository;
+use Aoyagi\AoyagiDiary\validator\AuthValidator;
+
 
 class AuthController
 {
-    private Model $model;
+    private AuthRepository $authRepository;
     private FilesystemLoader $loader;
     private Environment $twig;
+    private AuthValidator $validator;
 
     public function __construct()
     {
-        $this->model = new Model();
-        $this->loader = new FilesystemLoader(__DIR__ . '/views');
+        $this->authRepository = new AuthRepository();
+        $this->loader = new FilesystemLoader(__DIR__ . '/../views');
         $this->twig = new Environment($this->loader);
+        $this->validator = new AuthValidator();
     }
 
     public function checkAuth(): void
@@ -44,28 +49,25 @@ class AuthController
 
     public function login(): void
     {
-        // 1) POST データと CSRF トークンの検証
         $username = $_POST['username'] ?? '';
         $password = $_POST['password'] ?? '';
-        $postToken = $_POST['_token'] ?? '';
 
-        $errorMessages = $this->errorCheck($username,  $password, $postToken, 'login');
+        $errorMessages = $this->validator->validate($username,  $password);
 
         if (!empty($errorMessages)) {
             $this->renderWithError($errorMessages, 'login');
             return;
         }
 
-        // 2) DBから該当username持ってくる
-        $user = $this->model->getUserByUsername($username);
+        // DBから該当username持ってくる
+        $user = $this->authRepository->getUserByUsername($username);
 
-        // 3) password_verify($inputPassword, $dbPassword) 暗証番号 check
+        // password_verify($inputPassword, $dbPassword) 暗証番号 check
         if (!$user || !password_verify($password, $user['password'])) {
             $this->renderWithError(['id or pw is not collect.'], 'login');
             return;
         }
 
-        // need test
         session_regenerate_id(true);
 
         $_SESSION['user_id'] = $user['id'];
@@ -78,11 +80,10 @@ class AuthController
 
     public function signUp(): void
     {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $postToken = $_POST['_token'];
+        $username = $_POST['username'] ?? '';
+        $password = $_POST['password'] ?? '';
 
-        $errorMessages = $this->errorCheck($username,  $password, $postToken, 'signup');
+        $errorMessages = $this->validator->validate($username,  $password);
 
         if (!empty($errorMessages)) {
             $this->renderWithError($errorMessages, 'signup');
@@ -90,13 +91,12 @@ class AuthController
         }
 
         try {
-            $this->model->signup($username, $password);
+            $this->authRepository->signup($username, $password);
             header('Location: /login');
             exit;
         } catch (\PDOException $e) {
-            error_log('Locatio: /login');
             if (isset($e->errorInfo[1]) && $e->errorInfo[1] === 1062) {
-                $this->renderWithError(['id is deplicated'], 'signup');
+                $this->renderWithError(['id is duplicated'], 'signup');
             } else {
                 $this->renderWithError(['sign error.' . $e->getMessage()], 'signup');
             }
@@ -106,10 +106,11 @@ class AuthController
     public function logout(): void
     {
         unset($_SESSION['user_id'], $_SESSION['username']);
+        session_destroy();
         header('Location: /login');
     }
 
-    public function renderWithError(array $errorMessages, string $screen)
+    public function renderWithError(array $errorMessages, string $screen): void
     {
         if ($screen === 'login') {
             echo $this->twig->render('loginScreen.html.twig', [
@@ -122,27 +123,5 @@ class AuthController
                 'csrf_token_value' => $_SESSION['csrf_token']
             ]);
         }
-    }
-
-    private function errorCheck(string $username, string $password, string $postToken, string $screen): array
-    {
-        $errorMessages = [];
-
-        if (empty($postToken) || $postToken !== ($_SESSION['csrf_token'])) {
-            $errorMessages[] = 'invalid access. (CSRF Token Error)';
-        }
-
-        if (trim($username) === '' || trim($password) === '') {
-            $errorMessages[] = 'id, pw are required.';
-        }
-
-        if (strlen($username) > 50) {
-            $errorMessages[] = 'length of id should be less than 50.';
-        }
-        if (strlen($password) > 255) {
-            $errorMessages[] = 'length of pw should be less than 255.';
-        }
-
-        return $errorMessages;
     }
 }

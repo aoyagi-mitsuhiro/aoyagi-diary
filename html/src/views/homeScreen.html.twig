@@ -13,6 +13,12 @@
             </div>
         </div>
 
+        {% if error_messages %}
+            <div id="error-text">
+                ⚠️ {{ error_messages }}
+            </div>
+        {% endif %}
+
         <ul id="diary-list" >
             {% for diary in diaries%}
                 {{ include('diary_box.html.twig') }}
