@@ -136,14 +136,16 @@ class DiaryController
 
     public function updateDiary(int $id): void
     {
-        $diary_owner_id = (int)$_POST['diary_owner_id'];
         $user_id = (int)$_SESSION['user_id'];
+        $diary = $this->diaryRepository->getDiaryById($id);
 
-        if ($user_id !== $diary_owner_id) {
+        if (!$diary || (int)$diary['user_id'] !== $user_id) {
             $_SESSION['flash_error'] = "You do not have permission to edit/delete this diary.";
             header('Location: /diaries');
             exit;
         }
+
+        $diary_owner_id = $user_id;
 
         $title = $_POST['title'] ?? '';
         $date = $_POST['date'] ?? '';
@@ -177,10 +179,10 @@ class DiaryController
 
     public function deleteDiary(int $id): void
     {
-        $diary_owner_id = (int)$_POST['diary_owner_id'];
         $user_id = (int)$_SESSION['user_id'];
+        $diary = $this->diaryRepository->getDiaryById($id);
 
-        if ($user_id !== $diary_owner_id) {
+        if (!$diary || (int)$diary['user_id'] !== $user_id) {
             $_SESSION['flash_error'] = "You do not have permission to edit/delete this diary.";
             header('Location: /diaries');
             exit;
