@@ -63,9 +63,6 @@ class AuthController
 
         // DBから該当username持ってくる
         $user = $this->authRepository->getUserByUsername($username);
-        echo '<pre>';
-        print_r($user);
-        echo '</pre>';
 
         // password_verify($inputPassword, $dbPassword) 暗証番号 check
         if (!$user || !password_verify($password, $user['password'])) {
