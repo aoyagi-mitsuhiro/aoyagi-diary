@@ -6,6 +6,7 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Aoyagi\AoyagiDiary\model\DiaryRepository;
 use Aoyagi\AoyagiDiary\validator\DiaryValidator;
+use Aoyagi\AoyagiDiary\database\Database;
 
 class DiaryController
 {
@@ -16,7 +17,8 @@ class DiaryController
 
     public function __construct()
     {
-        $this->diaryRepository = new DiaryRepository();
+        $pdo = Database::getConnection();
+        $this->diaryRepository = new DiaryRepository($pdo);
         $this->loader = new FilesystemLoader(__DIR__ . '/../views');
         $this->validator = new DiaryValidator();
         $this->twig = new Environment($this->loader);

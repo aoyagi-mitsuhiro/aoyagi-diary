@@ -6,6 +6,7 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Aoyagi\AoyagiDiary\model\AuthRepository;
 use Aoyagi\AoyagiDiary\validator\AuthValidator;
+use Aoyagi\AoyagiDiary\database\Database;
 
 
 class AuthController
@@ -17,7 +18,8 @@ class AuthController
 
     public function __construct()
     {
-        $this->authRepository = new AuthRepository();
+        $pdo = Database::getConnection();
+        $this->authRepository = new AuthRepository($pdo);
         $this->loader = new FilesystemLoader(__DIR__ . '/../views');
         $this->twig = new Environment($this->loader);
         $this->validator = new AuthValidator();
@@ -61,6 +63,9 @@ class AuthController
 
         // DBから該当username持ってくる
         $user = $this->authRepository->getUserByUsername($username);
+        echo '<pre>';
+        print_r($user);
+        echo '</pre>';
 
         // password_verify($inputPassword, $dbPassword) 暗証番号 check
         if (!$user || !password_verify($password, $user['password'])) {

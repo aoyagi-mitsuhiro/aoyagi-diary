@@ -4,14 +4,13 @@ namespace Aoyagi\AoyagiDiary\model;
 
 use PDO;
 use PDOException;
-use Aoyagi\AoyagiDiary\database\Database;
 
 class AuthRepository
 {
     private PDO $pdo;
-    public function __construct()
+    public function __construct(PDO $pdo)
     {
-        $this->pdo = Database::getConnection();
+        $this->pdo = $pdo;
         $this->createTable();
     }
 

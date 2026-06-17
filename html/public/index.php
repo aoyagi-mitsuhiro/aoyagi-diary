@@ -4,12 +4,13 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use Aoyagi\AoyagiDiary\controller\DiaryController;
 use Aoyagi\AoyagiDiary\controller\AuthController;
+use Dotenv\Dotenv;
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
 $diaryController = new DiaryController();
