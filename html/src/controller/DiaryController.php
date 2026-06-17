@@ -74,7 +74,6 @@ class DiaryController
 
         echo $this->twig->render('detailScreen.html.twig', [
             'diary' => $diary,
-            'diary_owner_id' => $diary['user_id'],
             'csrf_token_value' => $_SESSION['csrf_token']
         ]);
     }
@@ -136,16 +135,16 @@ class DiaryController
 
     public function updateDiary(int $id): void
     {
-        $user_id = (int)$_SESSION['user_id'];
         $diary = $this->diaryRepository->getDiaryById($id);
+        $login_user_id = (int)$_SESSION['user_id'];
+        $diary_owner_id = (int)$diary['user_id'];
 
-        if (!$diary || (int)$diary['user_id'] !== $user_id) {
+
+        if (!$diary || $diary_owner_id !== $login_user_id) {
             $_SESSION['flash_error'] = "You do not have permission to edit/delete this diary.";
             header('Location: /diaries');
             exit;
         }
-
-        $diary_owner_id = $user_id;
 
         $title = $_POST['title'] ?? '';
         $date = $_POST['date'] ?? '';
@@ -157,20 +156,16 @@ class DiaryController
                 'id' => $id,
                 'title' => $title,
                 'date' => $date,
-                'contents' => $contents,
-                'user_id' => $diary_owner_id
+                'contents' => $contents
             ];
 
             echo $this->twig->render('detailScreen.html.twig', [
                 'diary' => $diary,
                 'error_messages' => $errorMessages,
-                'diary_owner_id' => (int)$_POST['diary_owner_id'],
                 'csrf_token_value' => $_SESSION['csrf_token']
             ]);
             return;
         }
-
-
 
         $this->diaryRepository->updateDiary($id, $title, $date, $contents);
         header('Location: /diaries');
