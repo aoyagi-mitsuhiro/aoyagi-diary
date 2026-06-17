@@ -4,22 +4,14 @@ namespace Aoyagi\AoyagiDiary\model;
 
 use PDO;
 use PDOException;
+use Aoyagi\AoyagiDiary\database\Database;
 
 class AuthRepository
 {
     private PDO $pdo;
     public function __construct()
     {
-        $host = $_ENV['DB_HOST'];
-        $dbname = $_ENV['DB_DATABASE'];
-        $username = $_ENV['DB_USERNAME'];
-        $password = $_ENV['DB_PASSWORD'];
-
-        $dsn = "mysql:host={$host};dbname={$dbname};charset=utf8mb4";
-        $this->pdo = new PDO($dsn, $username, $password, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-        ]);
-
+        $this->pdo = Database::getConnection();
         $this->createTable();
     }
 
