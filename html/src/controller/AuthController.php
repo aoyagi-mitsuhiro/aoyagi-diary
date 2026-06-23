@@ -3,26 +3,23 @@
 namespace Aoyagi\AoyagiDiary\controller;
 
 use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
 use Aoyagi\AoyagiDiary\model\AuthRepository;
 use Aoyagi\AoyagiDiary\validator\AuthValidator;
-use Aoyagi\AoyagiDiary\database\Database;
-
 
 class AuthController
 {
     private AuthRepository $authRepository;
-    private FilesystemLoader $loader;
     private Environment $twig;
     private AuthValidator $validator;
 
-    public function __construct()
-    {
-        $pdo = Database::getConnection();
-        $this->authRepository = new AuthRepository($pdo);
-        $this->loader = new FilesystemLoader(__DIR__ . '/../views');
-        $this->twig = new Environment($this->loader);
-        $this->validator = new AuthValidator();
+    public function __construct(
+        AuthRepository $authRepository,
+        Environment $twig,
+        AuthValidator $validator
+    ) {
+        $this->authRepository = $authRepository;
+        $this->twig = $twig;
+        $this->validator = $validator;
     }
 
     public function checkAuth(): void

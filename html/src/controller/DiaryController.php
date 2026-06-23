@@ -3,25 +3,23 @@
 namespace Aoyagi\AoyagiDiary\controller;
 
 use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
 use Aoyagi\AoyagiDiary\model\DiaryRepository;
 use Aoyagi\AoyagiDiary\validator\DiaryValidator;
-use Aoyagi\AoyagiDiary\database\Database;
 
 class DiaryController
 {
     private DiaryRepository $diaryRepository;
-    private FilesystemLoader $loader;
     private Environment $twig;
     private DiaryValidator $validator;
 
-    public function __construct()
-    {
-        $pdo = Database::getConnection();
-        $this->diaryRepository = new DiaryRepository($pdo);
-        $this->loader = new FilesystemLoader(__DIR__ . '/../views');
-        $this->validator = new DiaryValidator();
-        $this->twig = new Environment($this->loader);
+    public function __construct(
+        DiaryRepository $diaryRepository,
+        Environment $twig,
+        DiaryValidator $validator,
+    ) {
+        $this->diaryRepository = $diaryRepository;
+        $this->twig = $twig;
+        $this->validator = $validator;
     }
 
     public function showHome(?string $errorMessages = null): void

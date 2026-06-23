@@ -2,9 +2,10 @@
 session_start();
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use Dotenv\Dotenv;
 use Aoyagi\AoyagiDiary\controller\DiaryController;
 use Aoyagi\AoyagiDiary\controller\AuthController;
-use Dotenv\Dotenv;
+
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -13,8 +14,9 @@ if (empty($_SESSION['csrf_token'])) {
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
-$diaryController = new DiaryController();
-$authController = new AuthController();
+$container = require_once __DIR__ . '/../config/container.php';
+$authController = $container->get(AuthController::class);
+$diaryController = $container->get(DiaryController::class);
 
 $uri = trim($_SERVER['REQUEST_URI'], '/');
 $parts = explode('/', $uri);

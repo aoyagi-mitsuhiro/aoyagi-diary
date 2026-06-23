@@ -1,6 +1,6 @@
 <?php
 
-namespace Aoyagi\AoyagiDiary\database;
+namespace Aoyagi\AoyagiDiary\Database;
 
 use PDO;
 

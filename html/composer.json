@@ -3,7 +3,8 @@
     "description": "aoyagi-diary composer",
     "autoload": {
         "psr-4": {
-            "Aoyagi\\AoyagiDiary\\": "src/"
+            "Aoyagi\\AoyagiDiary\\": "src/",
+            "Aoyagi\\AoyagiDiary\\Database\\": "database/"
         }
     },
     "autoload-dev": {
@@ -19,9 +20,13 @@
     "minimum-stability": "dev",
     "require": {
         "twig/twig": "^3.0",
-        "vlucas/phpdotenv": "^5.6@dev"
+        "vlucas/phpdotenv": "^5.6@dev",
+        "php-di/php-di": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "^13.3@dev"
+    },
+    "scripts": {
+        "migrate" : "php scripts/init_db.php"
     }
 }

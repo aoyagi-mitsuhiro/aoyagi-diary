@@ -11,7 +11,6 @@ class DiaryRepository
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
-        $this->createDiaryTable();
     }
 
     public function getDiaries(int $user_id): array
