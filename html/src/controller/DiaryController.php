@@ -5,27 +5,31 @@ namespace Aoyagi\AoyagiDiary\controller;
 use Twig\Environment;
 use Aoyagi\AoyagiDiary\model\DiaryRepository;
 use Aoyagi\AoyagiDiary\validator\DiaryValidator;
+use Aoyagi\AoyagiDiary\service\DiaryDownloadInterface;
 
 class DiaryController
 {
     private DiaryRepository $diaryRepository;
     private Environment $twig;
     private DiaryValidator $validator;
+    private DiaryDownloadInterface $downloadService;
 
     public function __construct(
         DiaryRepository $diaryRepository,
         Environment $twig,
         DiaryValidator $validator,
+        DiaryDownloadInterface $downloadService,
     ) {
         $this->diaryRepository = $diaryRepository;
         $this->twig = $twig;
         $this->validator = $validator;
+        $this->downloadService = $downloadService;
     }
 
     public function showHome(?string $errorMessages = null): void
     {
         $user_id = $_SESSION['user_id'];
-        $diaries = $this->diaryRepository->getDiaries((int)$user_id);
+        $diaries = $this->diaryRepository->getHomeDiaries((int)$user_id);
 
         if (isset($_SESSION['flash_error'])) {
             $errorMessages = $_SESSION['flash_error'];
@@ -186,5 +190,13 @@ class DiaryController
         $this->diaryRepository->deleteDiary($id);
         header('Location: /diaries');
         exit;
+    }
+
+    public function downloadDiaries(): void
+    {
+        $user_id = $_SESSION['user_id'];
+        $diaries = $this->diaryRepository->getHomeDiaries((int)$user_id);
+
+        $this->downloadService->downloadList($diaries);
     }
 }

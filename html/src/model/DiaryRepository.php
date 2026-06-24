@@ -13,10 +13,10 @@ class DiaryRepository
         $this->pdo = $pdo;
     }
 
-    public function getDiaries(int $user_id): array
+    public function getHomeDiaries(int $user_id): array
     {
         try {
-            $sql = "SELECT id, title, date, contents FROM diaries WHERE is_private = 0 OR user_id = :user_id ORDER BY id DESC";
+            $sql = "SELECT id, title, date, contents, is_private FROM diaries WHERE is_private = 0 OR user_id = :user_id ORDER BY id ASC";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([':user_id' => $user_id]);
 

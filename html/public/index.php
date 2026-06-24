@@ -18,8 +18,8 @@ $container = require_once __DIR__ . '/../config/container.php';
 $authController = $container->get(AuthController::class);
 $diaryController = $container->get(DiaryController::class);
 
-$uri = trim($_SERVER['REQUEST_URI'], '/');
-$parts = explode('/', $uri);
+$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$parts = explode('/', $requestUri);
 
 $method = $_SERVER['REQUEST_METHOD'];
 if (isset($_POST['_method'])) {
@@ -34,15 +34,18 @@ if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
 }
 
 $isLoggedIn = isset($_SESSION['user_id']);
+$firstPart = $parts[1] ?? '';
+$secondPart = $parts[2] ?? '';
+$thirdPart = $parts[3] ?? '';
 
 if (!$isLoggedIn) {
-    if ($parts[0] === 'login') {
+    if ($firstPart === 'login') {
         if ($method === 'POST') {
             $authController->login();
         } else {
             $authController->showLogin();
         }
-    } else if ($parts[0] === 'signup') {
+    } else if ($firstPart === 'signup') {
         if ($method === 'POST') {
             $authController->signUp();
         } else {
@@ -55,14 +58,12 @@ if (!$isLoggedIn) {
 } else {
     $authController->checkAuth();
 
-    if ($parts[0] === 'logout') {
+    if ($firstPart === 'logout') {
         $authController->logout();
         exit;
     }
 
-    if ($parts[0] === 'diaries') {
-        $secondPart = $parts[1] ?? '';
-        $thirdPart = $parts[2] ?? '';
+    if ($firstPart === 'diaries') {
 
         if ($secondPart === '') {
             $diaryController->showHome();
@@ -77,6 +78,8 @@ if (!$isLoggedIn) {
                 http_response_code(405);
                 die('method not allowed');
             }
+        } else if ($secondPart === 'download') {
+            $diaryController->downloadDiaries();
         } else if (is_numeric($secondPart)) {
             $id = (int)$secondPart;
 
