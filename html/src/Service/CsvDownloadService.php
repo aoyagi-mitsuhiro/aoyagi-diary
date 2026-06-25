@@ -13,9 +13,9 @@ class CsvDownloadService implements DiaryDownloadInterface
             $filename = "diary_list_" . date('Ymd') . ".csv";
 
             header('Content-Type: text/csv; charset=UTF-8');
-            header('Content-Disposition: inline; filename="' . $filename . '"');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
 
-            echo "\xEF\xBB\xBF";
+            echo "\xEF\xBB\xBF";  
 
             $output = fopen('php://output', 'w');
             fputcsv(
