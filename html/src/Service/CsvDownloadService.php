@@ -14,9 +14,8 @@ class CsvDownloadService implements DiaryDownloadInterface
 
             header('Content-Type: text/csv; charset=UTF-8');
             header('Content-Disposition: attachment; filename="' . $filename . '"');
-
-            echo "\xEF\xBB\xBF";  
-
+            header('Cache-Control: max-age=0');
+            
             $output = fopen('php://output', 'w');
             fputcsv(
                 $output,
@@ -26,21 +25,19 @@ class CsvDownloadService implements DiaryDownloadInterface
                 "\\"
             );
             foreach ($diaries as $diary) {
-                fputcsv(
-                    $output,
-                    [
-                        $diary['id'],
-                        $diary['title'],
-                        $diary['date'],
-                        $diary['is_private'] ? 'private' : 'public'
-                    ],
-                    ",",
-                    '"',
-                    "\\"
-                );
+                $row = [
+                    $diary['id'],
+                    $diary['title'],
+                    $diary['date'],
+                    $diary['is_private'] ? 'private' : 'public',
+                ];
+
+                $convertedRow = mb_convert_encoding($row, 'SJIS-win', 'UTF-8');
+                fputcsv($output, $convertedRow, ",", '"', "\\");
             }
 
             fclose($output);
+            exit;
         } catch (\Exception $e) {
             if (!headers_sent()) {
                 header_remove();
