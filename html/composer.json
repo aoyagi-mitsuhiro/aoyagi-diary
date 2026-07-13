@@ -3,8 +3,7 @@
     "description": "aoyagi-diary composer",
     "autoload": {
         "psr-4": {
-            "Aoyagi\\AoyagiDiary\\": "src/",
-            "Aoyagi\\AoyagiDiary\\Database\\": "database/"
+            "Aoyagi\\AoyagiDiary\\": "src/"
         }
     },
     "autoload-dev": {

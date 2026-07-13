@@ -45,17 +45,28 @@ class DiaryController
 
     public function showForm(): void
     {
-        $title = $_SESSION['tmp_title'] ?? '';
-        $date = $_SESSION['tmp_date'] ?? '';
-        $contents = $_SESSION['tmp_contents'] ?? '';
-        $is_private = $_SESSION['tmp_is_private'] ?? '';
+        $errorMessages = null;
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+          $title = $_POST['title'] ?? '';
+          $date = $_POST['date'] ?? '';
+          $contents = $_POST['contents'] ?? '';
+          $is_private = isset($_POST['is_private']);
+          $errorMessages = $this->validator->validate($title, $date, $contents);
+      } else {
+          $title = $_SESSION['tmp_title'] ?? '';
+          $date = $_SESSION['tmp_date'] ?? '';
+          $contents = $_SESSION['tmp_contents'] ?? '';
+          $is_private = $_SESSION['tmp_is_private'] ?? '';
+      }
 
         echo $this->twig->render('formScreen.html.twig', [
             'title' => $title,
             'date' => $date,
             'contents' => $contents,
             'is_private' => $is_private,
-            'csrf_token_value' => $_SESSION['csrf_token']
+            'csrf_token_value' => $_SESSION['csrf_token'],
+            'error_messages' => $errorMessages,
         ]);
     }
 

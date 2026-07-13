@@ -4,5 +4,5 @@ namespace Aoyagi\AoyagiDiary\service;
 
 interface DiaryDownloadInterface
 {
-    public function downloadList(array $diaris): void;
+    public function downloadList(array $diaries): void;
 }
