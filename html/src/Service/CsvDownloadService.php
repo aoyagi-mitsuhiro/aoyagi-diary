@@ -12,10 +12,10 @@ class CsvDownloadService implements DiaryDownloadInterface
         try {
             $filename = "diary_list_" . date('Ymd') . ".csv";
 
-            header('Content-Type: text/csv; charset=UTF-8');
+            header('Content-Type: text/csv; charset=Shift_JIS');
             header('Content-Disposition: attachment; filename="' . $filename . '"');
             header('Cache-Control: max-age=0');
-            
+
             $output = fopen('php://output', 'w');
             fputcsv(
                 $output,

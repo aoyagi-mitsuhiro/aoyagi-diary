@@ -123,4 +123,83 @@ class AuthController
             ]);
         }
     }
+
+    // 
+    // api
+    // 
+    public function apiLogin(): void
+    {
+        $input = json_decode(file_get_contents('php://input'), true) ?? [];
+        $username = $input['username'] ?? '';
+        $password = $input['password'] ?? '';
+
+        $errorMessages = $this->validator->validate($username, $password);
+        if (!empty($errorMessages)) {
+            http_response_code(400);
+            echo json_encode(['errors' => $errorMessages]);
+            return;
+        }
+
+        $user = $this->authRepository->getUserByUsername($username);
+
+        if (!$user || !password_verify($password, $user['password'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'id or pw is not correct.']);
+            return;
+        }
+        session_regenerate_id(true);
+
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
+        http_response_code(200);
+        echo json_encode([
+            'message' => 'logged in',
+            'user' => [
+                'id' => $user['id'],
+                'username' => $user['username'],
+            ],
+        ]);
+    }
+
+    public function apiLogout(): void
+    {
+        unset($_SESSION['user_id'], $_SESSION['username']);
+
+        session_destroy();
+
+        http_response_code(200);
+        echo json_encode(['message' => 'logged out']);
+    }
+
+    public function apiSignup(): void
+    {
+        $input = json_decode(file_get_contents('php://input'), true) ?? [];
+        $username = $input['username'] ?? '';
+        $password = $input['password'] ?? '';
+
+        $errorMessages = $this->validator->validate($username,  $password);
+
+        if (!empty($errorMessages)) {
+            http_response_code(400);
+            echo json_encode(['errors' => $errorMessages]);
+            return;
+        }
+
+        try {
+            $this->authRepository->signup($username, $password);
+        } catch (\PDOException $e) {
+            if (isset($e->errorInfo[1]) && $e->errorInfo[1] === 1062) {
+                http_response_code(409);
+                echo json_encode(['error' => 'id is duplicated']);
+                return;
+            }
+            http_response_code(500);
+            echo json_encode(['error' => 'sign error.' . $e->getMessage()]);
+            return;
+        }
+        http_response_code(201);
+        echo json_encode(['message' => 'signed up']);
+    }
 }

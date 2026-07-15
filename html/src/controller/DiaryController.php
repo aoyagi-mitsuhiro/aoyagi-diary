@@ -48,17 +48,17 @@ class DiaryController
         $errorMessages = null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-          $title = $_POST['title'] ?? '';
-          $date = $_POST['date'] ?? '';
-          $contents = $_POST['contents'] ?? '';
-          $is_private = isset($_POST['is_private']);
-          $errorMessages = $this->validator->validate($title, $date, $contents);
-      } else {
-          $title = $_SESSION['tmp_title'] ?? '';
-          $date = $_SESSION['tmp_date'] ?? '';
-          $contents = $_SESSION['tmp_contents'] ?? '';
-          $is_private = $_SESSION['tmp_is_private'] ?? '';
-      }
+            $title = $_POST['title'] ?? '';
+            $date = $_POST['date'] ?? '';
+            $contents = $_POST['contents'] ?? '';
+            $is_private = isset($_POST['is_private']);
+            $errorMessages = $this->validator->validate($title, $date, $contents);
+        } else {
+            $title = $_SESSION['tmp_title'] ?? '';
+            $date = $_SESSION['tmp_date'] ?? '';
+            $contents = $_SESSION['tmp_contents'] ?? '';
+            $is_private = $_SESSION['tmp_is_private'] ?? '';
+        }
 
         echo $this->twig->render('formScreen.html.twig', [
             'title' => $title,
@@ -207,7 +207,173 @@ class DiaryController
     {
         $user_id = $_SESSION['user_id'];
         $diaries = $this->diaryRepository->getHomeDiaries((int)$user_id);
-
         $this->downloadService->downloadList($diaries);
+    }
+
+
+    // 
+    // api
+    // 
+    public function apiDownloadDiaries(): void
+    {
+        $user_id = $_SESSION['user_id'] ?? null;
+        if ($user_id === null) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        $diaries = $this->diaryRepository->getHomeDiaries((int)$user_id);
+        $this->downloadService->downloadList($diaries);
+    }
+
+    public function apiGetDiaryList(): void
+    {
+        $user_id = $_SESSION['user_id'] ?? null;
+        if ($user_id === null) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        $diaries = $this->diaryRepository->getHomeDiaries((int)$user_id);
+
+        http_response_code(200);
+        echo json_encode(['diaries' => $diaries]);
+    }
+
+    public function apiInsertDiary(): void
+    {
+        $user_id = $_SESSION['user_id'] ?? null;
+        if ($user_id === null) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true) ?? [];
+        $title = $input['title'] ?? '';
+        $date = $input['date'] ?? '';
+        $contents = $input['contents'] ?? '';
+        $is_private = !empty($input['is_private']);
+
+        $errorMessages = $this->validator->validate($title, $date, $contents);
+        if (!empty($errorMessages)) {
+            http_response_code(400);
+            echo json_encode(['errors' => $errorMessages]);
+            return;
+        }
+
+        $isDiarySaved = $this->diaryRepository->saveDiary($title, $date, $contents, $is_private, (int)$user_id);
+        if (!$isDiarySaved) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to save diary']);
+            return;
+        }
+
+        http_response_code(201);
+        echo json_encode(['message' => 'created']);
+    }
+
+    public function apiShowDetail(int $diaryId): void
+    {
+        $user_id = $_SESSION['user_id'] ?? null;
+        if ($user_id === null) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        $diary = $this->diaryRepository->getDiaryById($diaryId);
+
+        if (!$diary) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Diary not found']);
+            return;
+        }
+        if ($diary['is_private'] && (int)$diary['user_id'] !== (int)$user_id) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You do not have permission to read this diary.']);
+            return;
+        }
+
+        http_response_code(200);
+        echo json_encode(['diary' => $diary]);
+    }
+
+    public function apiUpdateDiary(int $diaryId): void
+    {
+        $user_id = $_SESSION['user_id'] ?? null;
+        if ($user_id === null) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        $diary = $this->diaryRepository->getDiaryById($diaryId);
+        if (!$diary) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Diary not found']);
+            return;
+        }
+        if ((int)$diary['user_id'] !== (int)$user_id) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You do not have permission to edit this diary.']);
+            return;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true) ?? [];
+        $title = $input['title'] ?? '';
+        $date = $input['date'] ?? '';
+        $contents = $input['contents'] ?? '';
+
+        $errorMessages = $this->validator->validate($title, $date, $contents);
+        if (!empty($errorMessages)) {
+            http_response_code(400);
+            echo json_encode(['errors' => $errorMessages]);
+            return;
+        }
+
+        $isDiaryUpdated = $this->diaryRepository->updateDiary($diaryId, $title, $date, $contents);
+        if (!$isDiaryUpdated) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to update diary']);
+            return;
+        }
+
+        http_response_code(200);
+        echo json_encode(['message' => 'updated']);
+    }
+
+    public function apiDeleteDiary(int $diaryId): void
+    {
+        $user_id = $_SESSION['user_id'] ?? null;
+        if ($user_id === null) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        $diary = $this->diaryRepository->getDiaryById($diaryId);
+        if (!$diary) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Diary not found']);
+            return;
+        }
+        if ((int)$diary['user_id'] !== (int)$user_id) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You do not have permission to delete this diary.']);
+            return;
+        }
+
+        $isDiaryDeleted = $this->diaryRepository->deleteDiary($diaryId);
+        if (!$isDiaryDeleted) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to delete diary']);
+            return;
+        }
+
+        http_response_code(200);
+        echo json_encode(['message' => 'deleted']);
     }
 }

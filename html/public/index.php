@@ -26,17 +26,93 @@ if (isset($_POST['_method'])) {
     $method = strtoupper($_POST['_method']);
 }
 
-if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
+$isLoggedIn = isset($_SESSION['user_id']);
+$firstPart = $parts[1] ?? '';
+$secondPart = $parts[2] ?? '';
+$thirdPart = $parts[3] ?? '';
+
+$isApiRequest = $firstPart === 'api';
+if (!$isApiRequest && in_array($method, ['POST', 'PUT', 'DELETE'])) {
     if (!isset($_POST['_token']) || $_POST['_token'] !== $_SESSION['csrf_token']) {
         http_response_code(403);
         die('CSRF Token Invalid');
     }
 }
 
-$isLoggedIn = isset($_SESSION['user_id']);
-$firstPart = $parts[1] ?? '';
-$secondPart = $parts[2] ?? '';
-$thirdPart = $parts[3] ?? '';
+if ($isApiRequest) {
+    header('Content-Type: application/json');
+
+    if ($secondPart === 'auth') {
+
+        // /api/auth/~
+        if ($method === 'POST') {
+            switch ($thirdPart) {
+                case 'login':
+                    $authController->apiLogin();
+                    exit;
+                case 'logout':
+                    $authController->apiLogout();
+                    exit;
+                case 'signup':
+                    $authController->apiSignup();
+                    exit;
+            }
+        }
+
+        http_response_code(404);
+        echo json_encode(['error' => 'Not Found']);
+        exit;
+    } else if ($secondPart === 'diaries') {
+        // /api/diaries/download?format=(csv / excel)
+        if ($thirdPart === 'download' && $method === 'GET') {
+            $diaryController->apiDownloadDiaries();
+            exit;
+        }
+
+        // /api/diaries/{id}
+        if (is_numeric($thirdPart)) {
+            $id = (int)$thirdPart;
+            switch ($method) {
+                case 'GET':
+                    $diaryController->apiShowDetail($id);
+                    exit;
+                case 'PUT':
+                    $diaryController->apiUpdateDiary($id);
+                    exit;
+                case 'DELETE':
+                    $diaryController->apiDeleteDiary($id);
+                    exit;
+                default:
+                    http_response_code(405);
+                    echo json_encode(['error' => 'Method Not Allowed']);
+                    exit;
+            }
+        }
+
+        // /api/diaries
+        if ($thirdPart === '') {
+            switch ($method) {
+                case 'GET':
+                    $diaryController->apiGetDiaryList();
+                    exit;
+                case 'POST':
+                    $diaryController->apiInsertDiary();
+                    exit;
+                default:
+                    http_response_code(405);
+                    echo json_encode(['error' => 'Method Not Allowed']);
+                    exit;
+            }
+        }
+
+        http_response_code(404);
+        echo json_encode(['error' => 'Not Found']);
+        exit;
+    }
+    http_response_code(404);
+    echo json_encode(['error' => 'Not Found']);
+    exit;
+}
 
 if (!$isLoggedIn) {
     if ($firstPart === 'login') {

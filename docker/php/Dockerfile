@@ -1,7 +1,6 @@
 FROM php:8.5-apache
 
 COPY --from=composer:2.9.8 /usr/bin/composer /usr/bin/composer
-RUN docker-php-ext-install pdo pdo_mysql
 RUN apt-get update && apt-get install -y \
     unzip \
     zlib1g-dev \
