@@ -1,0 +1,63 @@
+{% extends "base.html.twig" %}
+{% block title %} Diary Form {% endblock %}
+
+{% block body %}
+<form method="POST" action="/diaries/confirm">
+    <input type="hidden" name="_token" value="{{ csrf_token_value }}">
+    <div class="container">
+        <div class="header">
+            <h2>📚 Form page</h2>
+        </div>
+
+        {% if error_messages %}
+            <div id="error-text">
+                    {% for error in error_messages %}
+                        ⚠️ {{ error }}
+                        {% if not loop.last %}<br>{% endif %}
+                    {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="diary-form-group">
+            <div class="diary-form-label">
+                <h3>title</h3>
+            </div>
+            <div>
+                <input type='text' name='title' id='title' value="{{ title }}" required/>
+            </div>
+        </div>
+
+
+        <div class="diary-form-group">
+            <div class="diary-form-label">
+                <h3>date</h3>
+            </div>
+            <div>
+                <input type='date' name='date' id='date' value="{{ date }}" required/>
+            </div>
+        </div>
+
+        <div class="diary-form-group">
+            <div class="diary-form-label">
+                <h3>privacy</h3>
+            </div>
+            <div>
+                <input type="checkbox" name="is_private" {{is_private ? 'checked' : ''}}>
+            </div>
+        </div>
+
+        <div class="diary-form-group">
+            <div class="diary-form-label">
+                <h3>contents</h3>
+            </div>
+            <div>
+                <textarea name='contents' id='contents' required>{{ contents }}</textarea>
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <button type="submit" class="btn">submit</button>
+        </div>
+    </div>
+</form>
+{% endblock %}

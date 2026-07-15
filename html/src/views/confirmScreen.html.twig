@@ -1,0 +1,56 @@
+{% extends "base.html.twig" %}
+{% block title %} Diary Confirm {% endblock %}
+
+{% block body %}
+<form action="/diaries/new" method="POST">
+    <input type="hidden" name="_token" value="{{ csrf_token_value }}">
+
+    <div class="container" >
+        <div class="header" >
+            <h2>📚 Confirm page</h2>
+        </div>
+
+        <div class="diary-form-group">
+            <div class="diary-form-label">
+                <h3>title</h3>
+            </div>
+            <div>
+                <p>{{ title }}</p>
+            </div>
+        </div>
+
+
+        <div class="diary-form-group">
+            <div class="diary-form-label">
+                <h3>date</h3>
+            </div>
+            <div>
+                <p>{{ date|date("Y年 m月 d日") }}</p>
+            </div>
+        </div>
+
+        <div class="diary-form-group">
+            <div class="diary-form-label">
+                <h3>privacy</h3>
+            </div>
+            <div>
+                <p>{{ is_private ? 'true' : 'false' }}</p>
+            </div>
+        </div>
+
+        <div class="diary-form-group">
+            <div class="diary-form-label">
+                <h3>contents</h3>
+            </div>
+            <div>
+                <p>{{ contents|nl2br }}</p>
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <a href="/diaries/form" class="btn">back</a>
+            <button type="submit" class="btn">submit</button>
+        </div>
+    </div>
+</form>
+{% endblock %}

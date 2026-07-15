@@ -1,0 +1,31 @@
+{% extends "base.html.twig" %}
+{% block title %} Diary Home {% endblock %}
+
+{% block body %}
+<form method="POST" action="/logout">
+    <input type="hidden" name="_token" value="{{ csrf_token_value }}">
+    <div class="container" >
+        <div class="header" >
+            <h2>📚 Home page</h2>
+            <div class= "flex-btn">
+                <a href="/diaries/download?format=csv" class="btn">csv download</a>
+                <a href="/diaries/download?format=excel" class="btn">excel download</a>
+                <button type="submit" class="btn">Logout</button>
+                <a href="/diaries/form" class="btn">+</a>
+            </div>
+        </div>
+
+        {% if error_messages %}
+            <div id="error-text">
+                ⚠️ {{ error_messages }}
+            </div>
+        {% endif %}
+
+        <ul id="diary-list" >
+            {% for diary in diaries%}
+                {{ include('diary_box.html.twig') }}
+            {% endfor %}
+        </ul>
+    </div>
+</form>
+{% endblock %}

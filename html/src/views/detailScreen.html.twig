@@ -1,0 +1,64 @@
+{% extends "base.html.twig" %}
+{% block title %} Diary Detail {% endblock %}
+
+{% block body %}
+<form action="/diaries/{{ diary.id }}/update" method="POST">
+    <input type="hidden" name="_method" value="PUT">
+    <input type="hidden" name="_token" value="{{ csrf_token_value }}">
+
+    <div class="container">
+        <div class="header">
+            <h2>📚 Detail page</h2>
+        </div>
+
+
+        {% if error_messages %}
+            <div id="error-text">
+                {% for error in error_messages %}
+                    ⚠️ {{ error }}
+                    {% if not loop.last %}<br>{% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="diary-form-group">
+            <div class="diary-form-label">
+                <h3>title</h3>
+            </div>
+            <div>
+                <input type='text' name='title' id='title' value="{{ diary.title ?? title }}" required/>
+            </div>
+        </div>
+    
+        <div class="diary-form-group">
+            <div class="diary-form-label">
+                <h3>date</h3>
+            </div>
+            <div>
+                <input type='date' name='date' id='date' value="{{ diary.date ?? date }}" required/>
+            </div>
+        </div>
+
+        <div class="diary-form-group">
+            <div class="diary-form-label">
+                <h3>contents</h3>
+            </div>
+            <div>
+                <textarea name='contents' id='contents' required>{{ diary.contents ?? contents }}</textarea>
+            </div>
+        </div>
+
+        <div class="btn-container">
+                <button type="submit" class="btn">update</button>
+                <button type="submit" form="delete-form" class="btn">delete</button>
+                <a href="/diaries" class="btn">back</a>
+        </div>
+        
+    </div>
+</form>
+<form id="delete-form" action="/diaries/{{ diary.id }}/delete" method="POST">
+    <input type="hidden" name="_method" value="DELETE">
+    <input type="hidden" name="_token" value="{{ csrf_token_value }}">
+</form>
+ 
+{% endblock %}

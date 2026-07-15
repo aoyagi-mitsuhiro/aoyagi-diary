@@ -1,72 +1,64 @@
 <?php
 
-namespace Aoyagi\AoyagiDiary;
+namespace Aoyagi\AoyagiDiary\model;
 
 use PDO;
 use PDOException;
 
-class Model
+class DiaryRepository
 {
-    private array $diaries = [];
     private PDO $pdo;
-    public function __construct()
+    public function __construct(PDO $pdo)
     {
-        $dsn = 'mysql:host=aoyagi-diary-db;dbname=diary_mysql_db;charset=utf8mb4';
-        $this->pdo = new PDO($dsn, 'root', '12345');
-
-        $this->createTable();
+        $this->pdo = $pdo;
     }
 
-    public function getDiaries()
-    {
-        $sql = "SELECT id, title, date, contents FROM diaries ORDER BY date DESC";
-        $stmt = $this->pdo->query($sql);
-        $this->diaries = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $this->diaries;
-    }
-
-    public function getDiaryById(int $id)
+    public function getHomeDiaries(int $user_id): array
     {
         try {
-            $sql = "SELECT id, title, date, contents FROM diaries WHERE id = :id";
+            $sql = "SELECT id, title, date, contents, is_private FROM diaries WHERE is_private = 0 OR user_id = :user_id ORDER BY id ASC";
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([':id' => $id]);
-            $diary = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $diary;
+            $stmt->execute([':user_id' => $user_id]);
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            // Handle the error, e.g., log it or display an error message
             error_log('Database error: ' . $e->getMessage());
-            exit;
+            return [];
         }
     }
 
-    public function saveDiary(string $title, string $date, string $contents): bool
+    public function getDiaryById(int $id): ?array
     {
         try {
-            $stmt = $this->pdo->prepare("INSERT INTO diaries (title, date, contents) VALUES (:title, :date, :contents)");
+            $sql = "SELECT id, title, date, contents, is_private, user_id FROM diaries WHERE id = :id";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            $diary = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $diary ?: null;
+        } catch (PDOException $e) {
+            error_log('Database error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function saveDiary(string $title, string $date, string $contents, bool $is_private, int $user_id): bool
+    {
+        try {
+            $stmt = $this->pdo->prepare("INSERT INTO diaries (title, date, contents, is_private, user_id) 
+            VALUES (:title, :date, :contents, :is_private, :user_id)");
             $result = $stmt->execute([
                 ':title' => $title,
                 ':date' => $date,
                 ':contents' => $contents,
+                ':is_private' => (int)$is_private,
+                ':user_id' => (int)$user_id,
             ]);
 
             return $result;
         } catch (PDOException $e) {
-            // Handle the error, e.g., log it or display an error message
             error_log('Database error: ' . $e->getMessage());
-            exit;
+            return false;
         }
-    }
-
-    public function createTable(): void
-    {
-        $tableSql = "CREATE TABLE IF NOT EXISTS diaries (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(255) NOT NULL,
-            date DATE NOT NULL,
-            contents TEXT NOT NULL
-        )";
-        $this->pdo->query($tableSql);
     }
 
     public function updateDiary(int $id, string $title, string $date, string $contents): bool
